@@ -35,33 +35,32 @@ export function validationToErrorObj<T>(
 }
 
 /**
- * Recusively transverse the error tuple.
+ * Recursively transverse the error tuple.
  */
 function recTupleMap<T>(
   tuple: ObjTuple<T>,
-  map: ObjMap<T> | null = null,
+  map: ObjMap<T>,
 ): ObjMap<T> | null {
-  // For readibility.
+  // For readability.
   type V = T[keyof T];
 
-  // The key value will always be keyof T when not in leaf condition. i don't
+  // The key value will always be keyof T when not in leaf condition. I don't
   // know how to coordinate both types in a more type-safe way without using
   // complex function overloading (too complex for typescript)
   type K = keyof T | string | number | boolean | symbol;
 
   // If it's not a leaf it's a node
-  const thisNode = map ?? new Map<K, ObjMap<V>>();
 
   // If there is a leaf already then cancel insert of tuple. This shouldn't happen other than in leaf.
-  if (notMap(thisNode)) {
+  if (notMap(map)) {
     return null;
   }
 
-  // This casting only avoids empty list... this will never happen because of
-  // last condition. Maybe move to typeguard...
+  const thisNode = map as Map<K, ObjMap<V>>
+
   const [k, ...vs] = tuple;
 
-  // End of recursion condition. there is no more tuple to read so this is the
+  // End of recursion condition. There is no more tuple to read so this is the
   // leaf.
   if (isEmptyList(vs)) {
     return k as ObjMap<T>;
@@ -96,7 +95,7 @@ function recMapToObj<T>(m: ObjMap<T>): T {
 
   // End of recursion condition.
   if (!(m instanceof Map)) {
-    // Lazy casting. assuming that if it's not a map it's a primitive
+    // Lazy casting. Assuming that if it's not a map it's a primitive
     return m as T;
   }
 
